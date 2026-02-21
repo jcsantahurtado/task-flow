@@ -1,0 +1,13 @@
+{% extends 'layouts/base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+    <h1>{{ title }}</h1>
+    <img src="{% static 'j.png' %}" alt="">
+    <p>
+        TaskFlow es una aplicación web desarrollada con Django que permite crear proyectos, gestionar tareas y mantener el control del trabajo de manera simple y ordenada.
+    </p>
+
+{% endblock %}

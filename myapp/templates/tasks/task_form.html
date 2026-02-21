@@ -1,0 +1,28 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+    <h1>
+        {% if editing %}
+            Update
+        {% else %}
+            Create
+        {% endif %}
+        
+        new task
+    </h1>
+    <div class="form-container">
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button>
+                {% if editing %}
+                    Update
+                {% else %}
+                    Save
+                {% endif %}
+            </button>
+        </form>
+    </div>
+
+{% endblock %}

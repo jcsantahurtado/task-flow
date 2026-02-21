@@ -1,0 +1,101 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+    <h1>Tasks</h1>
+
+    {% for task in tasks %}
+
+    <article id="task-{{ task.id }}" class="card">
+        <h2>
+            <span class="status">
+                {% if task.done %}✅{% else %}🕐{% endif %}
+            </span>
+            {{ task.title }}
+        </h2>
+        
+        <p>Description: {{ task.description }}</p>
+        <p>Project: {{ task.project.name }}</p>
+
+        <button class="btn-done" data-id="{{ task.id }}">
+            {% if task.done %}Undone{% else %}Done{% endif %}
+        </button>
+
+        <button class="btn-delete" data-id="{{ task.id }}">
+            Delete
+        </button>
+
+        <button class="btn-edit" data-id="{{ task.id }}">
+            Edit
+        </button>
+
+        {# <a href="{% url 'edit_task' task.id %}">Editar</a> #}
+        
+    </article>
+
+    {% endfor %}
+
+    <script>
+        function getCSRFToken() {
+            return document.querySelector('[name=csrfmiddlewaretoken]').value;
+        }
+        
+        // TOGGLE DONE
+        document.querySelectorAll(".btn-done").forEach(button => {
+            button.addEventListener("click", () => {
+                const taskId = button.dataset.id;
+        
+                fetch(`/toggle_task/${taskId}/`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": getCSRFToken(),
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    const article = document.getElementById(`task-${taskId}`);
+                    article.querySelector(".status").textContent =
+                        data.done ? "✅" : "🕐";
+                    article.querySelector(".btn-done").textContent =
+                        data.done ? "Undone" : "Done";
+                });
+            });
+        });
+        
+        // DELETE
+        document.querySelectorAll(".btn-delete").forEach(button => {
+            button.addEventListener("click", () => {
+                const taskId = button.dataset.id;
+        
+                if (!confirm("¿Seguro que quieres borrar esta tarea?")) return;
+        
+                fetch(`/delete_task/${taskId}/`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": getCSRFToken(),
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.deleted) {
+                        document.getElementById(`task-${taskId}`).remove();
+                    }
+                });
+            });
+        });
+
+        // EDIT
+        document.querySelectorAll(".btn-edit").forEach(button => {
+            button.addEventListener("click", () => {
+                const taskId = button.dataset.id;
+                window.location.href = `/edit_task/${taskId}/`;                
+            });
+        });
+
+    </script>
+        
+    <form style="display:none">
+        {% csrf_token %}
+    </form>
+
+{% endblock %}
